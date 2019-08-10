@@ -9,7 +9,7 @@ library(gridExtra)
 
 
 ## Add your working directory here where you stored the original script for the flat violin plot
-setwd("D:/Maja Ilic/Doktorarbeit Köln/R - Anwendung in der Ökologie/My functions")
+#setwd("...")
 source("geom_flat_violin.R")
 
 ## Use iris dataset for practice
@@ -81,11 +81,61 @@ myout
 ## Plot
 
 ## Start with the violin plot first (notice it is different than above!)
+## I will already add some extra features (plot and panel background color etc.)
+
+## Plot appearance inspired by great plots from CÃ©dric Scherer
+## https://github.com/Z3tt/TidyTuesday/blob/master/plots/2019_28/2019_28_FIFA_WWCs.png
+## https://github.com/Z3tt/TidyTuesday/blob/master/plots/2019_27/2019_27_FranchiseRevenue.png
+
+# Colors ("cold version")
+mycolors <- c(rgb(211,241,167,max=255),
+              rgb(100,183,137,max=255),
+              rgb(22,79,99,max=255))
+
+# Colors ("warm version")
+# mycolors <- c(rgb(215,136,8,max=255),
+#               rgb(112,0,0,max=255),
+#               rgb(157,89,49,max=255))
+
+## Image of different iris species
+## Iris setosa: https://www.plant-world-seeds.com/store/view_seed_item/6010
+## Iris versicolor: https://www.plant-world-seeds.com/store/view_seed_item/3664
+## Iris virginica: https://www.fs.fed.us/wildflowers/beauty/iris/Blue_Flag/iris_virginica.shtml
+
+img_iris_set <- png::readPNG("./Iris setosa.png") 
+iris_set <- grid::rasterGrob(img_iris_set, interpolate = T)
+
+img_iris_vers <- png::readPNG("./Iris versicolor.png") 
+iris_vers <- grid::rasterGrob(img_iris_vers, interpolate = T)
+
+img_iris_virg <- png::readPNG("./Iris virginica.png") 
+iris_virg <- grid::rasterGrob(img_iris_virg, interpolate = T)
+
+##
 
 g <- ggplot()
 g <- g + geom_flat_violin(data=iris,aes(x=Species,y=Petal.Length,fill=Species),
                           position=position_nudge(0.05),
-                          color="black",scale="count",trim=FALSE)  ## or TRUE
+                          color="white",scale="count",trim=FALSE)  ## or TRUE
+g <- g + theme_bw()
+g <- g + theme(plot.background = element_rect(fill = rgb(51,51,51,max=255)),
+               panel.background = element_rect(fill = rgb(51,51,51,max=255), colour = "white",
+                                               size = 2, linetype = "solid"),
+               panel.grid = element_blank(),
+               axis.title.y = element_text(size=30,color="white",face="bold",margin=margin(0,15,0,0)),
+               axis.text.y = element_text(size=26,color="white"),
+               axis.text.x = element_text(size=26,color="white",face="italic"),
+               axis.ticks = element_line(color="white"),
+               legend.position = "none")
+g <- g + labs(x="",y="Petal length (cm)")
+g <- g + scale_x_discrete(breaks=c("setosa","versicolor","virginica"),
+                          labels=c("Iris setosa","Iris versicolor","Iris virginica"))
+g <- g + scale_y_continuous(limits=c(0,10),exp=c(0,0))
+g <- g + scale_fill_manual(values=mycolors)
+g <- g + scale_color_manual(values=mycolors)
+g <- g + annotation_custom(iris_set, xmin = 0.8, xmax = 1.2, ymin = 2.75, ymax = 3.9) 
+g <- g + annotation_custom(iris_vers, xmin = 1.8, xmax = 2.2, ymin = 6.2, ymax = 7.35)
+g <- g + annotation_custom(iris_virg, xmin = 2.75, xmax = 3.25, ymin = 8.25, ymax = 9.5) 
 g
 
 ## Add the boxplot to your existing flat violinplot:
@@ -97,8 +147,8 @@ g <- g + geom_rect(data = mydata2, stat = "identity",
                           ymin = q25,
                           xmax = as.numeric(Species) - 0.05,
                           ymax = q75,
-                          color = Species),
-                      fill = "white")
+                          fill = Species),
+                   color = "white")
 
 g
 
@@ -108,8 +158,8 @@ g <- g + geom_segment(data = mydata2, stat = "identity",
                       aes(x = as.numeric(Species) - 0.25,
                           y = median,
                           xend = as.numeric(Species) - 0.05,
-                          yend = median,
-                          color = Species),
+                          yend = median),
+                      color = "white",
                       size = 1)
 
 g
@@ -120,7 +170,7 @@ g <- g + geom_segment(data = mydata2, stat = "identity",
                           y = lower_whisker,
                           xend = as.numeric(Species) - 0.05,
                           yend = upper_whisker),
-                      color = "black")
+                      color = "white")
 
 g
 
@@ -131,7 +181,7 @@ g <- g + geom_segment(data = mydata2, stat = "identity",
                           y = lower_whisker,
                           xend = as.numeric(Species) - 0.05,
                           yend = lower_whisker),
-                      color = "black")
+                      color = "white")
 
 g
 
@@ -142,7 +192,7 @@ g <- g + geom_segment(data = mydata2, stat = "identity",
                           y = upper_whisker,
                           xend = as.numeric(Species) - 0.05,
                           yend = upper_whisker),
-                      color = "black")
+                      color = "white")
 
 g
 
@@ -153,14 +203,18 @@ g <- g + geom_point(data = myout, stat = "identity",
                     aes(x = as.numeric(Species) - 0.05,
                         y = outlier,
                         fill = Species),
-                    color = "black",
+                    color = "white",
                     shape = 21,
-                    size = 2)
+                    size = 1.5)
 g
 
 ## Save the plot
 
-png("Half boxplot and flat violin plot.png", width = 15, height = 12, units = "cm", res = 600)
+png("Half boxplot and flat violin plot cold.png", width = 13, height = 10, units = "cm", res = 300)
 print(g)
 dev.off()
+
+# png("Half boxplot and flat violin plot warm.png", width = 13, height = 10, units = "cm", res = 300)
+# print(g)
+# dev.off()
 
