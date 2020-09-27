@@ -165,7 +165,7 @@ g1 <- g1 +
 g1
 
 ##===============================================
-## Fourt step: add counts to each bin ----
+## Fourth step: add counts to each bin ----
 
 # This is a bit tricky, so take your time while you're doing this and make a few checks
 # The idea is to extract the counts from the ggplot object
